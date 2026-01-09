@@ -1,0 +1,170 @@
+// App.jsx
+import { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import axios from "axios";
+
+import Banner from "./components/Banner";
+import Header from "./components/Header";
+import Moviecard from "./components/Moviecard";
+import Watchlist from "./components/Watchlist";
+import Movies from "./components/Movie";
+import Signin from "./components/Signin";
+import Signup from "./components/Signup";
+import Footer from "./components/Footer";
+import MovieDetails from "./components/MovieDetails";
+
+function App() {
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const [watchlist, setWatchlist] = useState([]);
+  const count = watchlist.length;
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL; 
+  console.log(API_BASE)// ✅ backend URL from env
+
+  useEffect(() => {
+    async function fetchWatchlist() {
+      if (!user?.userId) {
+        setWatchlist([]);
+        return;
+      }
+      try {
+        const res = await axios.get(`${API_BASE}/watchlist/${user.userId}`);
+        setWatchlist(res.data.watchlist || []);
+      } catch (err) {
+        console.error("Failed to load watchlist", err);
+      }
+    }
+    fetchWatchlist();
+  }, [user]);
+
+  // BACKEND-AWARE addtowatchlist
+  async function addtowatchlist(movie) {
+    if (!user?.userId) {
+      alert("Please sign in to add movies to your watchlist.");
+      throw new Error("Not logged in");
+    }
+
+    const movieId = movie.id || movie.movieId;
+    const exists = watchlist.some((m) => (m.movieId || m.id) === movieId);
+    if (exists) return;
+
+    try {
+      await axios.post(`${API_BASE}/watchlist/add`, {
+        userId: user.userId,
+        movieId,
+        title: movie.title || movie.name || movie.original_name,
+        poster: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : movie.poster,
+        vote_average: movie.vote_average,
+        popularity: movie.popularity,
+        genres: movie.genres?.map((g) => g.name) || movie.genre_ids || [],
+        status: "plan",
+      });
+
+      setWatchlist((prev) => [
+        ...prev,
+        {
+          movieId,
+          title: movie.title || movie.name || movie.original_name,
+          poster: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : movie.poster,
+          vote_average: movie.vote_average,
+          popularity: movie.popularity,
+          genres: movie.genres?.map((g) => g.name) || [],
+          status: "plan",
+        },
+      ]);
+    } catch (err) {
+      console.error("Failed to add to watchlist", err);
+      alert("Could not add to watchlist");
+      throw err;
+    }
+  }
+
+  async function deletefromwatchlist(id) {
+    if (!user?.userId) {
+      alert("Please sign in first.");
+      return;
+    }
+    const movieId = id;
+
+    try {
+      await axios.delete(`${API_BASE}/watchlist/${user.userId}/${movieId}`);
+      setWatchlist((prev) =>
+        prev.filter((m) => (m.movieId || m.id) !== movieId)
+      );
+    } catch (err) {
+      console.error("Failed to delete from watchlist", err);
+      alert("Could not delete from watchlist");
+    }
+  }
+
+  function handleLoginSuccess(userData) {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  }
+
+  function handleLogout() {
+    setUser(null);
+    setWatchlist([]);
+    localStorage.removeItem("user");
+  }
+
+  return (
+    <div className="flex flex-col gap-6 bg-black min-h-screen">
+      <Header user={user} onLogout={handleLogout} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div className="flex flex-col gap-6">
+              <Banner addtowatchlist={addtowatchlist} />
+              <Moviecard />
+            </div>
+          }
+        />
+        <Route
+          path="/watchlist"
+          element={
+            <Watchlist
+              userId={user?.userId}
+              watchlist={watchlist}
+              setWatchlist={setWatchlist}
+              deletefromwatchlist={deletefromwatchlist}
+              count={count}
+            />
+          }
+        />
+        <Route
+          path="/movies"
+          element={
+            <Movies addtowatchlist={addtowatchlist} watchlist={watchlist} />
+          }
+        />
+        <Route
+          path="/moviedetail/:id"
+          element={
+            <MovieDetails
+              addtowatchlist={addtowatchlist}
+              watchlist={watchlist}
+            />
+          }
+        />
+        <Route
+          path="/signin"
+          element={<Signin onLoginSuccess={handleLoginSuccess} />}
+        />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+      <Footer />
+    </div>
+  );
+}
+
+export default App;
