@@ -8,7 +8,7 @@ function Movies({ addtowatchlist, watchlist }) {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState(""); // ✅ use empty string instead of " "
+  const [genre, setGenre] = useState("");
   const [rate, setRate] = useState("");
 
   function handlegenre(event) {
@@ -44,7 +44,7 @@ function Movies({ addtowatchlist, watchlist }) {
   const prevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : 1));
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_TMDB_API_KEY; // ✅ Vite env variable
+    const apiKey = import.meta.env.VITE_TMDB_API_KEY;
     if (!apiKey) {
       console.error("TMDB API key is missing. Check your .env file.");
       return;
@@ -121,17 +121,7 @@ function Movies({ addtowatchlist, watchlist }) {
 
       {/* Movies Grid */}
       <div className="max-w-7xl mx-auto">
-        <div
-          className="
-    grid gap-3
-    grid-cols-2
-    sm:grid-cols-2
-    md:grid-cols-3
-    lg:grid-cols-4
-    xl:grid-cols-5
-    2xl:grid-cols-6
-  "
-        >
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {movies
             .filter((val) => {
               const matchesSearch = (
@@ -150,7 +140,7 @@ function Movies({ addtowatchlist, watchlist }) {
               <Card
                 key={item.id}
                 data={item}
-                addtowatchlist={() => addtowatchlist(item)}
+                addtowatchlist={addtowatchlist}
                 watchlist={watchlist}
               />
             ))}

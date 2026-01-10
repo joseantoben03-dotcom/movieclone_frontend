@@ -1,70 +1,56 @@
 // src/components/Watchlist.jsx
-import React, { useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
-function Watchlist({ user, watchlist, setWatchlist }) {
+function Watchlist({ user, watchlist, deletefromwatchlist }) {
+  const [deleting, setDeleting] = useState(null); // Track which movie is being deleted
   const count = watchlist.length;
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  // Load watchlist for logged‑in user
-  useEffect(() => {
-    async function fetchWatchlist() {
-      if (!user?.token) {
-        setWatchlist([]);
-        return;
-      }
-
-      try {
-        const res = await axios.get(`${API_BASE}/watchlist`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-        setWatchlist(res.data.watchlist || []);
-      } catch (err) {
-        console.error(
-          "Failed to fetch watchlist",
-          err.response?.data || err.message
-        );
-      }
-    }
-    fetchWatchlist();
-  }, [user, API_BASE, setWatchlist]);
-
-  // Delete movie from watchlist
-  async function deletefromwatchlist(movieId) {
-    if (!user?.token) {
-      alert("Please sign in first");
-      return;
-    }
+  // Delete with loading state and confirmation
+  async function handleDelete(movieId, movieTitle) {
+    if (deleting) return; // Prevent multiple deletions at once
+    
+    // Optional: Ask for confirmation
+    const confirmed = window.confirm(
+      `Remove "${movieTitle}" from your watchlist?`
+    );
+    
+    if (!confirmed) return;
 
     try {
-      await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-
-      setWatchlist((prev) =>
-        prev.filter((m) => (m.movieId || m.id) !== movieId)
-      );
+      setDeleting(movieId);
+      await deletefromwatchlist(movieId);
+      // Success notification handled in App.jsx or can add here
     } catch (err) {
-      console.error(
-        "Delete failed",
-        err.response?.data || err.message
-      );
-      alert("Failed to delete from watchlist");
+      console.error("Delete failed:", err);
+    } finally {
+      setDeleting(null);
     }
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-100 px-4 py-8">
+        <div className="max-w-6xl mx-auto text-center py-20">
+          <h2 className="text-2xl font-semibold mb-4">Sign in to view your watchlist</h2>
+          <p className="text-gray-400">Please sign in to manage your movies.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-100 px-4 py-8">
       <div className="max-w-6xl mx-auto mb-6 flex items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-          Your Watchlist
-        </h1>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            Your Watchlist
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Welcome back, {user.name}!
+          </p>
+        </div>
         <span className="text-xs sm:text-sm text-gray-400">
-          {count} movies saved
+          {count} {count === 1 ? 'movie' : 'movies'} saved
         </span>
       </div>
 
@@ -72,7 +58,7 @@ function Watchlist({ user, watchlist, setWatchlist }) {
         <div className="px-6 py-4 border-b border-gray-800/80 flex items-center justify-between">
           <span className="text-sm text-gray-400">
             Showing <span className="text-gray-100 font-medium">{count}</span>{" "}
-            results
+            {count === 1 ? 'result' : 'results'}
           </span>
         </div>
 
@@ -91,7 +77,6 @@ function Watchlist({ user, watchlist, setWatchlist }) {
             </thead>
             <tbody className="divide-y divide-gray-800">
               {watchlist.map((movie) => {
-                // Prefer stored full poster URL, fall back to TMDB path
                 const imageUrl =
                   movie.poster ||
                   (movie.poster_path
@@ -104,10 +89,13 @@ function Watchlist({ user, watchlist, setWatchlist }) {
                   Array.isArray(movie.genres)
                     ? movie.genres.join(", ")
                     : movie.genres?.map?.((g) => g.name).join(", ") || "—";
+                
+                const movieId = movie.movieId || movie.id;
+                const isDeleting = deleting === movieId;
 
                 return (
                   <tr
-                    key={movie.movieId || movie.id}
+                    key={movieId}
                     className="hover:bg-gray-800/70 transition-colors duration-150"
                   >
                     <td className="px-6 py-4">
@@ -150,12 +138,17 @@ function Watchlist({ user, watchlist, setWatchlist }) {
                     <td className="px-6 py-4 align-middle">
                       <div className="flex justify-end">
                         <button
-                          onClick={() =>
-                            deletefromwatchlist(movie.movieId || movie.id)
-                          }
-                          className="px-4 py-2 text-xs font-medium rounded-full bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/40 transition-colors duration-150"
+                          onClick={() => handleDelete(movieId, title)}
+                          disabled={isDeleting}
+                          className={`
+                            px-4 py-2 text-xs font-medium rounded-full 
+                            bg-red-500/20 text-red-300 border border-red-500/40 
+                            hover:bg-red-500/40 transition-colors duration-150
+                            ${isDeleting ? 'opacity-50 cursor-wait' : ''}
+                            disabled:cursor-not-allowed
+                          `}
                         >
-                          Delete
+                          {isDeleting ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                     </td>
@@ -168,7 +161,10 @@ function Watchlist({ user, watchlist, setWatchlist }) {
                     colSpan={6}
                     className="px-6 py-10 text-center text-gray-500"
                   >
-                    No movies in your watchlist yet.
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-lg">No movies in your watchlist yet.</p>
+                      <p className="text-sm">Start adding movies to build your collection!</p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -192,10 +188,13 @@ function Watchlist({ user, watchlist, setWatchlist }) {
                   Array.isArray(movie.genres)
                     ? movie.genres.join(", ")
                     : movie.genres?.map?.((g) => g.name).join(", ") || "—";
+                
+                const movieId = movie.movieId || movie.id;
+                const isDeleting = deleting === movieId;
 
                 return (
                   <div
-                    key={movie.movieId || movie.id}
+                    key={movieId}
                     className="bg-gray-900/70 rounded-lg shadow-md overflow-hidden flex flex-col"
                   >
                     {/* Poster */}
@@ -229,12 +228,17 @@ function Watchlist({ user, watchlist, setWatchlist }) {
 
                       {/* Delete button */}
                       <button
-                        onClick={() =>
-                          deletefromwatchlist(movie.movieId || movie.id)
-                        }
-                        className="mt-2 px-3 py-1 text-xs font-medium rounded-full bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/40 transition-colors"
+                        onClick={() => handleDelete(movieId, title)}
+                        disabled={isDeleting}
+                        className={`
+                          mt-2 px-3 py-1 text-xs font-medium rounded-full 
+                          bg-red-500/20 text-red-300 border border-red-500/40 
+                          hover:bg-red-500/40 transition-colors
+                          ${isDeleting ? 'opacity-50 cursor-wait' : ''}
+                          disabled:cursor-not-allowed
+                        `}
                       >
-                        Delete
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </div>
@@ -243,7 +247,10 @@ function Watchlist({ user, watchlist, setWatchlist }) {
             </div>
           ) : (
             <div className="px-6 py-10 text-center text-gray-500">
-              No movies in your watchlist yet.
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-base">No movies in your watchlist yet.</p>
+                <p className="text-sm">Start adding movies to build your collection!</p>
+              </div>
             </div>
           )}
         </div>

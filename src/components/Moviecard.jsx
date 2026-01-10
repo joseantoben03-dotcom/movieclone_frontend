@@ -2,11 +2,16 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Card from "./Card";
 
-function Moviecard() {
+// ✅ Added addtowatchlist and watchlist props
+function Moviecard({ addtowatchlist, watchlist }) {
   const [shows, setShows] = useState([]);
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_TMDB_API_KEY; // ✅ Vite env variable
+    const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+    if (!apiKey) {
+      console.error("TMDB API key is missing. Check your .env file.");
+      return;
+    }
     axios
       .get(
         `https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&language=en-US&page=1`
@@ -68,7 +73,12 @@ function Moviecard() {
           "
         >
           {shows.map((item) => (
-            <Card key={item.id} data={item} />
+            <Card
+              key={item.id}
+              data={item}
+              addtowatchlist={addtowatchlist}
+              watchlist={watchlist}
+            />
           ))}
         </div>
       </div>

@@ -8,6 +8,7 @@ function MovieDetails({ addtowatchlist, watchlist }) {
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [addLoading, setAddLoading] = useState(false); // ✅ Added loading state
 
   const isInWatchlist = watchlist.some(
     (m) => (m.movieId || m.id) === Number(id)
@@ -19,20 +20,33 @@ function MovieDetails({ addtowatchlist, watchlist }) {
   }, [isInWatchlist]);
 
   async function handleAdd() {
-    if (!movie || added) return;
+    if (!movie || added || addLoading) return;
+    
     try {
+      setAddLoading(true);
       await addtowatchlist({
         ...movie,
         id: movie.id || Number(id),
       });
       setAdded(true);
+      
+      // ✅ Show success notification
+      alert(`"${movie.name || movie.title}" added to watchlist!`);
+      
     } catch (err) {
-      console.error("Add from details failed", err);
+      console.error("Add from details failed:", err);
+      // Error alert is already shown in App.jsx addtowatchlist function
+    } finally {
+      setAddLoading(false);
     }
   }
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_TMDB_API_KEY; // ✅ use env variable
+    const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+    if (!apiKey) {
+      console.error("TMDB API key is missing. Check your .env file.");
+      return;
+    }
     setLoading(true);
     axios
       .get(
@@ -64,7 +78,7 @@ function MovieDetails({ addtowatchlist, watchlist }) {
                 {movie?.poster_path || movie?.backdrop_path ? (
                   <img
                     src={imageUrl}
-                    alt={movie?.original_name || "Movie poster"}
+                    alt={movie?.name || "Movie poster"}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
@@ -156,13 +170,23 @@ function MovieDetails({ addtowatchlist, watchlist }) {
               <div className="flex flex-wrap gap-4 mt-2">
                 <button
                   onClick={handleAdd}
-                  className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-sm font-semibold"
+                  disabled={addLoading}
+                  className={`
+                    px-6 py-2.5 rounded-md text-sm font-semibold transition-all
+                    ${
+                      added
+                        ? "bg-green-600 hover:bg-green-500"
+                        : "bg-blue-600 hover:bg-blue-500"
+                    }
+                    ${addLoading ? "opacity-50 cursor-wait" : ""}
+                    disabled:cursor-not-allowed
+                  `}
                 >
-                  {added ? "Added" : "Add to Watchlist"}
+                  {addLoading ? "Adding..." : added ? "✓ Added to Watchlist" : "Add to Watchlist"}
                 </button>
                 <button
                   onClick={() => navigate("/")}
-                  className="px-6 py-2.5 rounded-md border border-gray-600 text-sm text-gray-200 hover:bg-gray-800"
+                  className="px-6 py-2.5 rounded-md border border-gray-600 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
                 >
                   Back
                 </button>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 function Card({ data, addtowatchlist, watchlist = [] }) {
   const navigate = useNavigate();
   const [clicked, setClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!data || !data.poster_path) return null;
 
@@ -22,13 +23,32 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
 
   async function handleAddClick(e) {
     e.stopPropagation();
-    if (clicked) return;
+    
+    if (clicked) {
+      alert("This movie is already in your watchlist!");
+      return;
+    }
+
+    if (loading) return; // Prevent multiple clicks
 
     try {
+      setLoading(true);
       await addtowatchlist?.(data);
+      
+      // ✅ Only set clicked to true if successfully added
       setClicked(true);
+      
+      // ✅ Show success notification
+      alert(`"${data.original_name || data.title}" added to watchlist!`);
+      
     } catch (err) {
-      console.error("Add from card failed", err);
+      console.error("Add from card failed:", err);
+      
+      // ✅ Don't set clicked if there was an error
+      // The error alert is already shown in App.jsx addtowatchlist function
+      
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -61,9 +81,20 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
 
             <button
               onClick={handleAddClick}
-              className="mt-1 text-[0.65rem] sm:text-sm px-2 py-1 rounded-full bg-white/10 text-white border border-white/30"
+              disabled={loading}
+              className={`
+                mt-1 text-[0.65rem] sm:text-sm px-2 py-1 rounded-full 
+                border border-white/30 transition-all
+                ${
+                  clicked
+                    ? "bg-green-600/80 text-white border-green-400"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }
+                ${loading ? "opacity-50 cursor-wait" : ""}
+                disabled:cursor-not-allowed
+              `}
             >
-              {clicked ? "Added" : "+ Watchlist"}
+              {loading ? "Adding..." : clicked ? "✓ Added" : "+ Watchlist"}
             </button>
           </div>
         </div>
