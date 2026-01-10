@@ -155,6 +155,7 @@ function App() {
               user={user} // full user object (has token)
               watchlist={watchlist}
               setWatchlist={setWatchlist}
+               deletefromwatchlist={deletefromwatchlist}
             />
           }
         />
