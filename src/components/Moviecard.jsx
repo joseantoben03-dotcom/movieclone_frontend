@@ -60,28 +60,28 @@ function Moviecard({ addtowatchlist, watchlist }) {
       </div>
 
       {/* Cards grid */}
-      <div className="max-w-7xl mx-auto">
-        <div
-          className="
-            grid gap-3
-            grid-cols-2
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-5
-            2xl:grid-cols-6
-          "
-        >
-          {shows.map((item) => (
-            <Card
-              key={item.id}
-              data={item}
-              addtowatchlist={addtowatchlist}
-              watchlist={watchlist}
-            />
-          ))}
-        </div>
-      </div>
+      <div className="w-full mx-auto">
+  <div
+    className="
+      grid gap-3
+      grid-cols-1
+      sm:grid-cols-2
+      md:grid-cols-3
+      lg:grid-cols-4
+      xl:grid-cols-5
+      2xl:grid-cols-6
+    "
+  >
+    {shows.map((item) => (
+      <Card
+        key={item.id}
+        data={item}
+        addtowatchlist={addtowatchlist}
+        watchlist={watchlist}
+      />
+    ))}
+  </div>
+</div>
 
       {/* Info section */}
       <div className="max-w-7xl mx-auto mt-10 grid gap-6 md:grid-cols-3">
