@@ -1,3 +1,4 @@
+// src/components/Banner.jsx
 import React from "react";
 import banner from "../assets/images/download.jpg";
 
@@ -25,12 +26,18 @@ function Banner({ addtowatchlist }) {
 
   return (
     <div className="w-full bg-gradient-to-b from-gray-950 via-gray-900 to-black py-6">
-      <div className="relative max-w-7xl mx-auto h-[22rem] sm:h-[28rem] md:h-[36rem] lg:h-[42rem] rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] 
-        px-4 sm:px-6"> {/* Added horizontal padding */}
-        
+      <div
+        className="
+          relative max-w-7xl mx-auto
+          h-[20rem] sm:h-[26rem] md:h-[34rem] lg:h-[40rem]
+          rounded-xl overflow-hidden
+          shadow-[0_0_40px_rgba(0,0,0,0.8)]
+          px-4 sm:px-6
+        "
+      >
         {/* Background image */}
         <div
-          className="absolute inset-0 bg-contain sm:bg-cover bg-center sm:mx-6"
+          className="absolute inset-0 bg-center bg-cover bg-no-repeat"
           style={{ backgroundImage: `url(${banner})` }}
         />
 
@@ -41,13 +48,13 @@ function Banner({ addtowatchlist }) {
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 md:p-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           {/* Text section */}
           <div className="text-left text-white max-w-2xl">
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight drop-shadow-lg">
+            <h2 className="text-xl sm:text-2xl md:text-4xl font-bold tracking-tight drop-shadow-lg">
               {pushpaMovie.title}
             </h2>
-            <p className="mt-2 text-sm sm:text-base md:text-lg text-gray-200 leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm md:text-base text-gray-200 leading-relaxed">
               {pushpaMovie.overview}
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base text-gray-200">
+            <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3 text-[0.7rem] sm:text-xs md:text-sm text-gray-200">
               <span className="px-3 py-1 rounded-full bg-red-600/80 text-xs sm:text-sm">
                 Action · Thriller
               </span>

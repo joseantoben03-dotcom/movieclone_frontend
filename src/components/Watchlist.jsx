@@ -1,36 +1,58 @@
+// src/components/Watchlist.jsx
 import React, { useEffect } from "react";
 import axios from "axios";
 
-function Watchlist({ userId, watchlist, setWatchlist }) {
+function Watchlist({ user, watchlist, setWatchlist }) {
   const count = watchlist.length;
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+  // Load watchlist for logged‑in user
   useEffect(() => {
     async function fetchWatchlist() {
-      if (!userId) return;
+      if (!user?.token) {
+        setWatchlist([]);
+        return;
+      }
+
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/watchlist/${userId}`
-        );
+        const res = await axios.get(`${API_BASE}/watchlist`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
         setWatchlist(res.data.watchlist || []);
       } catch (err) {
-        console.error("Failed to fetch watchlist", err);
+        console.error(
+          "Failed to fetch watchlist",
+          err.response?.data || err.message
+        );
       }
     }
     fetchWatchlist();
-  }, [userId, setWatchlist]);
+  }, [user, API_BASE, setWatchlist]);
 
+  // Delete movie from watchlist
   async function deletefromwatchlist(movieId) {
-    if (!userId) {
+    if (!user?.token) {
       alert("Please sign in first");
       return;
     }
+
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/watchlist/${userId}/${movieId}`
+      await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      setWatchlist((prev) =>
+        prev.filter((m) => (m.movieId || m.id) !== movieId)
       );
-      setWatchlist((prev) => prev.filter((m) => m.movieId !== movieId));
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error(
+        "Delete failed",
+        err.response?.data || err.message
+      );
       alert("Failed to delete from watchlist");
     }
   }
@@ -54,7 +76,7 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
           </span>
         </div>
 
-        {/* Table for desktop */}
+        {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full table-auto text-sm">
             <thead className="bg-gray-900/90">
@@ -69,12 +91,15 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
             </thead>
             <tbody className="divide-y divide-gray-800">
               {watchlist.map((movie) => {
+                // Prefer stored full poster URL, fall back to TMDB path
                 const imageUrl =
                   movie.poster ||
                   (movie.poster_path
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                     : "https://via.placeholder.com/200x300?text=No+Image");
-                const title = movie.title || movie.original_name || "Untitled";
+
+                const title =
+                  movie.title || movie.original_name || "Untitled";
                 const genresText =
                   Array.isArray(movie.genres)
                     ? movie.genres.join(", ")
@@ -96,7 +121,9 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
                     </td>
                     <td className="px-6 py-4 align-middle">
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-100">{title}</span>
+                        <span className="font-medium text-gray-100">
+                          {title}
+                        </span>
                         <span className="text-xs text-gray-500">
                           {movie.status || "Plan to watch"}
                         </span>
@@ -149,7 +176,7 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
           </table>
         </div>
 
-        {/* Mobile card grid layout */}
+        {/* Mobile layout */}
         <div className="block md:hidden">
           {watchlist.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 p-4">
@@ -159,7 +186,8 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
                   (movie.poster_path
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                     : "https://via.placeholder.com/200x300?text=No+Image");
-                const title = movie.title || movie.original_name || "Untitled";
+                const title =
+                  movie.title || movie.original_name || "Untitled";
                 const genresText =
                   Array.isArray(movie.genres)
                     ? movie.genres.join(", ")

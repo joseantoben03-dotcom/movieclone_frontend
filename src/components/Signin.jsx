@@ -1,3 +1,4 @@
+// src/components/Signin.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -18,18 +19,23 @@ function Signin({ onLoginSuccess }) {
     try {
       setLoading(true);
       const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
       const res = await axios.post(`${API_BASE}/signin`, {
         email: form.email,
         password: form.password,
       });
 
+      // backend returns: { message, userId, name, token }
       const userData = {
         userId: res.data.userId,
         name: res.data.name,
-        email: res.data.email,
+        email: form.email,        // or res.data.email if you add it in backend
+        token: res.data.token,    // ✅ needed for Authorization header
       };
 
+      // lift user to App state + localStorage (App already stores it)
       onLoginSuccess(userData);
+
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Signin failed");
@@ -71,7 +77,10 @@ function Signin({ onLoginSuccess }) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm text-gray-300 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm text-gray-300 mb-1"
+            >
               Password
             </label>
             <input
