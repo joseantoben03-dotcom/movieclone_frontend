@@ -60,13 +60,13 @@ function Moviecard({ addtowatchlist, watchlist }) {
       </div>
 
       {/* Cards grid */}
-      <div className="w-full mx-auto">
+      <div className="w-full mx-2 ">
   <div
     className="
       grid gap-3
       grid-cols-1
       sm:grid-cols-2
-      md:grid-cols-3
+      md:grid-cols-3 
       lg:grid-cols-4
       xl:grid-cols-5
       2xl:grid-cols-6
