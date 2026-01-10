@@ -1,4 +1,4 @@
-// App.jsx
+// src/App.jsx
 import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import axios from "axios";
@@ -20,10 +20,9 @@ function App() {
   });
 
   const [watchlist, setWatchlist] = useState([]);
-  const count = watchlist.length;
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
-  console.log(API_BASE); // ✅ backend URL from env
+  console.log(API_BASE); // backend URL from env
 
   // Load watchlist from backend
   useEffect(() => {
@@ -34,15 +33,18 @@ function App() {
       }
       try {
         const res = await axios.get(`${API_BASE}/watchlist`, {
-          headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+          headers: { Authorization: `Bearer ${user.token}` },
         });
         setWatchlist(res.data.watchlist || []);
       } catch (err) {
-        console.error("Failed to load watchlist", err.response?.data || err.message);
+        console.error(
+          "Failed to load watchlist",
+          err.response?.data || err.message
+        );
       }
     }
     fetchWatchlist();
-  }, [user]);
+  }, [user, API_BASE]);
 
   // Add to watchlist
   async function addtowatchlist(movie) {
@@ -70,7 +72,7 @@ function App() {
           status: "plan",
         },
         {
-          headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+          headers: { Authorization: `Bearer ${user.token}` },
         }
       );
 
@@ -89,7 +91,10 @@ function App() {
         },
       ]);
     } catch (err) {
-      console.error("Failed to add to watchlist", err.response?.data || err.message);
+      console.error(
+        "Failed to add to watchlist",
+        err.response?.data || err.message
+      );
       alert("Could not add to watchlist");
       throw err;
     }
@@ -105,13 +110,16 @@ function App() {
 
     try {
       await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
-        headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+        headers: { Authorization: `Bearer ${user.token}` },
       });
       setWatchlist((prev) =>
         prev.filter((m) => (m.movieId || m.id) !== movieId)
       );
     } catch (err) {
-      console.error("Failed to delete from watchlist", err.response?.data || err.message);
+      console.error(
+        "Failed to delete from watchlist",
+        err.response?.data || err.message
+      );
       alert("Could not delete from watchlist");
     }
   }
@@ -136,7 +144,7 @@ function App() {
           element={
             <div className="flex flex-col gap-6">
               <Banner addtowatchlist={addtowatchlist} />
-              <Moviecard />
+              <Moviecard addtowatchlist={addtowatchlist} />
             </div>
           }
         />
@@ -144,18 +152,19 @@ function App() {
           path="/watchlist"
           element={
             <Watchlist
-              userId={user?.userId}
+              user={user} // full user object (has token)
               watchlist={watchlist}
               setWatchlist={setWatchlist}
-              deletefromwatchlist={deletefromwatchlist}
-              count={count}
             />
           }
         />
         <Route
           path="/movies"
           element={
-            <Movies addtowatchlist={addtowatchlist} watchlist={watchlist} />
+            <Movies
+              addtowatchlist={addtowatchlist}
+              watchlist={watchlist}
+            />
           }
         />
         <Route
