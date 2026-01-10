@@ -22,28 +22,31 @@ function App() {
   const [watchlist, setWatchlist] = useState([]);
   const count = watchlist.length;
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL; 
-  console.log(API_BASE)// ✅ backend URL from env
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  console.log(API_BASE); // ✅ backend URL from env
 
+  // Load watchlist from backend
   useEffect(() => {
     async function fetchWatchlist() {
-      if (!user?.userId) {
+      if (!user?.token) {
         setWatchlist([]);
         return;
       }
       try {
-        const res = await axios.get(`${API_BASE}/watchlist/${user.userId}`);
+        const res = await axios.get(`${API_BASE}/watchlist`, {
+          headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+        });
         setWatchlist(res.data.watchlist || []);
       } catch (err) {
-        console.error("Failed to load watchlist", err);
+        console.error("Failed to load watchlist", err.response?.data || err.message);
       }
     }
     fetchWatchlist();
   }, [user]);
 
-  // BACKEND-AWARE addtowatchlist
+  // Add to watchlist
   async function addtowatchlist(movie) {
-    if (!user?.userId) {
+    if (!user?.token) {
       alert("Please sign in to add movies to your watchlist.");
       throw new Error("Not logged in");
     }
@@ -53,18 +56,23 @@ function App() {
     if (exists) return;
 
     try {
-      await axios.post(`${API_BASE}/watchlist/add`, {
-        userId: user.userId,
-        movieId,
-        title: movie.title || movie.name || movie.original_name,
-        poster: movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : movie.poster,
-        vote_average: movie.vote_average,
-        popularity: movie.popularity,
-        genres: movie.genres?.map((g) => g.name) || movie.genre_ids || [],
-        status: "plan",
-      });
+      await axios.post(
+        `${API_BASE}/watchlist/add`,
+        {
+          movieId,
+          title: movie.title || movie.name || movie.original_name,
+          poster: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : movie.poster,
+          vote_average: movie.vote_average,
+          popularity: movie.popularity,
+          genres: movie.genres?.map((g) => g.name) || movie.genre_ids || [],
+          status: "plan",
+        },
+        {
+          headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+        }
+      );
 
       setWatchlist((prev) => [
         ...prev,
@@ -81,26 +89,29 @@ function App() {
         },
       ]);
     } catch (err) {
-      console.error("Failed to add to watchlist", err);
+      console.error("Failed to add to watchlist", err.response?.data || err.message);
       alert("Could not add to watchlist");
       throw err;
     }
   }
 
+  // Delete from watchlist
   async function deletefromwatchlist(id) {
-    if (!user?.userId) {
+    if (!user?.token) {
       alert("Please sign in first.");
       return;
     }
     const movieId = id;
 
     try {
-      await axios.delete(`${API_BASE}/watchlist/${user.userId}/${movieId}`);
+      await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }, // ✅ send JWT
+      });
       setWatchlist((prev) =>
         prev.filter((m) => (m.movieId || m.id) !== movieId)
       );
     } catch (err) {
-      console.error("Failed to delete from watchlist", err);
+      console.error("Failed to delete from watchlist", err.response?.data || err.message);
       alert("Could not delete from watchlist");
     }
   }
