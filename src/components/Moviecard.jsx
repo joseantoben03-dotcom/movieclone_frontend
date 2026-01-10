@@ -60,7 +60,7 @@ function Moviecard({ addtowatchlist, watchlist }) {
       </div>
 
       {/* Cards grid */}
-      <div className="w-full mx-2 ">
+      <div className="w-full mx-auto">
   <div
     className="
       grid gap-3
