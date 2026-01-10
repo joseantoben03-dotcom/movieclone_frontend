@@ -58,8 +58,8 @@ function Moviecard() {
       <div className="max-w-7xl mx-auto">
         <div
           className="
-            grid gap-4
-            grid-cols-1
+            grid gap-3
+            grid-cols-2
             sm:grid-cols-2
             md:grid-cols-3
             lg:grid-cols-4
