@@ -2,9 +2,8 @@ import React from "react";
 import banner from "../assets/images/download.jpg";
 
 function Banner({ addtowatchlist }) {
-  // Pushpa movie data as object
   const pushpaMovie = {
-    id: 837051, // TMDB ID
+    id: 837051,
     title: "Pushpa: The Rise",
     original_name: "Pushpa",
     poster_path: "/rcBcSBq9Ltn5XoI0SAyCNdp2iM.jpg",
@@ -12,8 +11,8 @@ function Banner({ addtowatchlist }) {
     vote_average: 8.0,
     popularity: 85,
     release_date: "2021-12-17",
-    runtime: 179, // minutes
-    genre_ids: [28, 53], // Action, Thriller
+    runtime: 179,
+    genre_ids: [28, 53],
     overview:
       "An intense action drama set in the red sandalwood smuggling world, following a man's rise through power, loyalty, and chaos.",
   };
@@ -26,10 +25,12 @@ function Banner({ addtowatchlist }) {
 
   return (
     <div className="w-full bg-gradient-to-b from-gray-950 via-gray-900 to-black py-6">
-      <div className="relative max-w-7xl mx-auto h-[22rem] sm:h-[28rem] mx-6 md:h-[36rem]  lg:h-[42rem] rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+      <div className="relative max-w-7xl mx-auto h-[22rem] sm:h-[28rem] md:h-[36rem] lg:h-[42rem] rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] 
+        px-4 sm:px-6"> {/* Added horizontal padding */}
+        
         {/* Background image */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-contain sm:bg-cover bg-center sm:mx-6"
           style={{ backgroundImage: `url(${banner})` }}
         />
 

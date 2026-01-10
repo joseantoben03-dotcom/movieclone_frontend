@@ -11,13 +11,9 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
     data.backdrop_path || data.poster_path
   }`;
 
-
   useEffect(() => {
-    const inList = watchlist.some(
-      (m) => (m.movieId || m.id) === data.id
-    );
+    const inList = watchlist.some((m) => (m.movieId || m.id) === data.id);
     setClicked(inList);
-   
   }, [watchlist, data.id]);
 
   function handleCardClick() {
@@ -37,30 +33,35 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
   }
 
   return (
-    <div className="w-[180px] m-3">
+    <div className="m-2 w-full">
       <div
         onClick={handleCardClick}
         style={{ backgroundImage: `url(${imageUrl})` }}
-        className="relative h-[260px] w-full bg-center bg-cover rounded-xl overflow-hidden
-                   shadow-lg shadow-black/60 hover:shadow-2xl hover:shadow-black/80
-                   hover:cursor-pointer transform transition-transform duration-200 hover:scale-110"
+        className="
+          relative 
+          h-[200px] sm:h-[240px] md:h-[260px] 
+          w-full 
+          bg-center bg-cover rounded-xl overflow-hidden
+          shadow-lg shadow-black/60 hover:shadow-2xl hover:shadow-black/80
+          hover:cursor-pointer transform transition-transform duration-200 hover:scale-105
+        "
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
         <div className="absolute inset-x-0 bottom-0">
           <div className="w-full px-2 py-2 bg-black/40 backdrop-blur-sm">
-            <p className="text-[0.7rem] text-gray-100 font-medium truncate">
+            <p className="text-xs sm:text-sm md:text-base text-gray-100 font-medium truncate">
               {data.original_name || data.title}
             </p>
             {data.vote_average && (
-              <p className="mt-1 text-[0.65rem] text-amber-300 flex items-center gap-1">
+              <p className="mt-1 text-xs sm:text-sm text-amber-300 flex items-center gap-1">
                 ★ {data.vote_average.toFixed(1)}
               </p>
             )}
 
             <button
               onClick={handleAddClick}
-              className="mt-1 text-[0.6rem] px-2 py-1 rounded-full bg-white/10 text-white border border-white/30"
+              className="mt-1 text-[0.65rem] sm:text-sm px-2 py-1 rounded-full bg-white/10 text-white border border-white/30"
             >
               {clicked ? "Added" : "+ Watchlist"}
             </button>

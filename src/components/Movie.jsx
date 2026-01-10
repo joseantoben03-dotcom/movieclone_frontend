@@ -8,7 +8,7 @@ function Movies({ addtowatchlist, watchlist }) {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("");   // ✅ use empty string instead of " "
+  const [genre, setGenre] = useState(""); // ✅ use empty string instead of " "
   const [rate, setRate] = useState("");
 
   function handlegenre(event) {
@@ -16,12 +16,16 @@ function Movies({ addtowatchlist, watchlist }) {
   }
 
   function low() {
-    const a = movies.slice().sort((movieA, movieB) => movieA.vote_average - movieB.vote_average);
+    const a = movies
+      .slice()
+      .sort((movieA, movieB) => movieA.vote_average - movieB.vote_average);
     setMovies(a);
   }
 
   function top() {
-    const b = movies.slice().sort((movieA, movieB) => movieB.vote_average - movieA.vote_average);
+    const b = movies
+      .slice()
+      .sort((movieA, movieB) => movieB.vote_average - movieA.vote_average);
     setMovies(b);
   }
 
@@ -119,22 +123,27 @@ function Movies({ addtowatchlist, watchlist }) {
       <div className="max-w-7xl mx-auto">
         <div
           className="
-            grid gap-4 sm:gap-
-            grid-cols-2
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-5
-            2xl:grid-cols-6
-          "
+    grid gap-3
+    grid-cols-2
+    sm:grid-cols-2
+    md:grid-cols-3
+    lg:grid-cols-4
+    xl:grid-cols-5
+    2xl:grid-cols-6
+  "
         >
           {movies
             .filter((val) => {
-              const matchesSearch =
-                (val.name || val.title || val.original_name || "")
-                  .toLowerCase()
-                  .includes(search.toLowerCase());
-              const matchesGenre = !genre || val.genre_ids?.includes(Number(genre));
+              const matchesSearch = (
+                val.name ||
+                val.title ||
+                val.original_name ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search.toLowerCase());
+              const matchesGenre =
+                !genre || val.genre_ids?.includes(Number(genre));
               return matchesSearch && matchesGenre;
             })
             .map((item) => (

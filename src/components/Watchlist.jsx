@@ -41,13 +41,16 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
           Your Watchlist
         </h1>
-        <span className="text-xs sm:text-sm text-gray-400">{count} movies saved</span>
+        <span className="text-xs sm:text-sm text-gray-400">
+          {count} movies saved
+        </span>
       </div>
 
       <div className="max-w-6xl mx-auto bg-gray-900/80 border border-gray-800/80 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.7)] overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-800/80 flex items-center justify-between">
           <span className="text-sm text-gray-400">
-            Showing <span className="text-gray-100 font-medium">{count}</span> results
+            Showing <span className="text-gray-100 font-medium">{count}</span>{" "}
+            results
           </span>
         </div>
 
@@ -134,7 +137,10 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
               })}
               {count === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
                     No movies in your watchlist yet.
                   </td>
                 </tr>
@@ -143,59 +149,70 @@ function Watchlist({ userId, watchlist, setWatchlist }) {
           </table>
         </div>
 
-        {/* Mobile card layout */}
-        <div className="block md:hidden divide-y divide-gray-800">
+        {/* Mobile card grid layout */}
+        <div className="block md:hidden">
           {watchlist.length > 0 ? (
-            watchlist.map((movie) => {
-              const imageUrl =
-                movie.poster ||
-                (movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                  : "https://via.placeholder.com/200x300?text=No+Image");
-              const title = movie.title || movie.original_name || "Untitled";
-              const genresText =
-                Array.isArray(movie.genres)
-                  ? movie.genres.join(", ")
-                  : movie.genres?.map?.((g) => g.name).join(", ") || "—";
+            <div className="grid grid-cols-2 gap-4 p-4">
+              {watchlist.map((movie) => {
+                const imageUrl =
+                  movie.poster ||
+                  (movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                    : "https://via.placeholder.com/200x300?text=No+Image");
+                const title = movie.title || movie.original_name || "Untitled";
+                const genresText =
+                  Array.isArray(movie.genres)
+                    ? movie.genres.join(", ")
+                    : movie.genres?.map?.((g) => g.name).join(", ") || "—";
 
-              return (
-                <div
-                  key={movie.movieId || movie.id}
-                  className="flex gap-4 p-4 hover:bg-gray-800/70 transition-colors"
-                >
-                  <div className="h-24 w-16 rounded-lg overflow-hidden shadow-md flex-shrink-0">
-                    <img
-                      src={imageUrl}
-                      alt={title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col flex-grow justify-between">
-                    <div>
-                      <span className="font-medium text-gray-100">{title}</span>
-                      <p className="text-xs text-gray-500">
-                        {movie.status || "Plan to watch"}
-                      </p>
-                      <p className="text-xs text-amber-300">
-                        ★ {movie.vote_average ?? "N/A"}
-                      </p>
-                      <p className="text-xs text-gray-300">
-                        Popularity: {movie.popularity ?? "N/A"}
-                      </p>
-                      <p className="text-xs text-red-300">Genre: {genresText}</p>
+                return (
+                  <div
+                    key={movie.movieId || movie.id}
+                    className="bg-gray-900/70 rounded-lg shadow-md overflow-hidden flex flex-col"
+                  >
+                    {/* Poster */}
+                    <div className="h-40 w-full">
+                      <img
+                        src={imageUrl}
+                        alt={title}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
-                    <button
-                      onClick={() =>
-                        deletefromwatchlist(movie.movieId || movie.id)
-                      }
-                      className="mt-2 px-3 py-1 text-xs font-medium rounded-full bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/40 transition-colors"
-                    >
-                      Delete
-                    </button>
+
+                    {/* Info */}
+                    <div className="p-3 flex flex-col flex-grow justify-between">
+                      <div>
+                        <span className="block font-medium text-gray-100 text-sm truncate">
+                          {title}
+                        </span>
+                        <p className="text-xs text-gray-500">
+                          {movie.status || "Plan to watch"}
+                        </p>
+                        <p className="text-xs text-amber-300">
+                          ★ {movie.vote_average ?? "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-300">
+                          Popularity: {movie.popularity ?? "N/A"}
+                        </p>
+                        <p className="text-xs text-red-300 truncate">
+                          Genre: {genresText}
+                        </p>
+                      </div>
+
+                      {/* Delete button */}
+                      <button
+                        onClick={() =>
+                          deletefromwatchlist(movie.movieId || movie.id)
+                        }
+                        className="mt-2 px-3 py-1 text-xs font-medium rounded-full bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/40 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           ) : (
             <div className="px-6 py-10 text-center text-gray-500">
               No movies in your watchlist yet.
