@@ -21,17 +21,14 @@
               id: "necessary",
               name: "Necessary",
               description:
-                "<p>These cookies are necessary for the website to function properly and cannot be switched off. They help with things like logging in and setting your privacy preferences.</p>",
+                "<p>These cookies are necessary for the website to function properly and cannot be switched off.</p>",
               required: true,
-              onAccept: function () {
-                console.log("Necessary cookies always enabled");
-              },
             },
             {
               id: "analytics",
               name: "Analytics",
               description:
-                "<p>These cookies help us improve the site by tracking which pages are most popular and how visitors move around the site.</p>",
+                "<p>These cookies help us improve the site by tracking which pages are most popular.</p>",
               defaultValue: true,
               onAccept: function () {
                 gtag("consent", "update", { analytics_storage: "granted" });
@@ -45,7 +42,7 @@
               id: "advertising",
               name: "Advertising",
               description:
-                "<p>These cookies provide extra features and personalization to improve your experience. They may be set by us or by partners whose services we use.</p>",
+                "<p>These cookies provide extra features and personalization to improve your experience.</p>",
               onAccept: function () {
                 gtag("consent", "update", {
                   ad_storage: "granted",
@@ -69,20 +66,20 @@
                 '<p>We use cookies on our site to enhance your user experience, provide personalized content, and analyze our traffic. <a href="/cookie-policy" target="_blank">Cookie Policy.</a></p>',
               acceptAllButtonText: "Accept all",
               acceptAllButtonAccessibleLabel: "Accept all cookies",
-              rejectNonEssentialButtonText: "Reject all",   // ✅ Correct property
+              rejectNonEssentialButtonText: "Reject all",
               rejectNonEssentialButtonAccessibleLabel: "Reject all cookies",
               preferencesButtonText: "Preferences",
-              preferencesButtonAccessibleLabel: "Toggle preferences"
+              preferencesButtonAccessibleLabel: "Toggle preferences",
             },
             preferences: {
               title: "Customize your cookie preferences",
               description:
-                "<p>We respect your right to privacy. You can choose not to allow some types of cookies. Your cookie preferences will apply across our website.</p>",
+                "<p>You can choose not to allow some types of cookies. Your preferences will apply across our site.</p>",
               creditLinkText: "Get this banner for free",
-              creditLinkAccessibleLabel: "Get this banner for free"
-            }
+              creditLinkAccessibleLabel: "Get this banner for free",
+            },
           },
-          position: { banner: "center" }
+          position: { banner: "center" },
         });
       });
     </script>
