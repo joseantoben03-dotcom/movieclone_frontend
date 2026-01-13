@@ -12,6 +12,7 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
     data.backdrop_path || data.poster_path
   }`;
 
+  // ✅ useEffect must not be inside a try block
   useEffect(() => {
     const inList = watchlist.some((m) => (m.movieId || m.id) === data.id);
     setClicked(inList);
@@ -21,9 +22,10 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
     navigate(`/moviedetail/${data.id}`);
   }
 
+  // ✅ async handler for adding to watchlist
   async function handleAddClick(e) {
     e.stopPropagation();
-    
+
     if (clicked) {
       alert("This movie is already in your watchlist!");
       return;
@@ -34,19 +36,15 @@ function Card({ data, addtowatchlist, watchlist = [] }) {
     try {
       setLoading(true);
       await addtowatchlist?.(data);
-      
+
       // ✅ Only set clicked to true if successfully added
       setClicked(true);
-      
+
       // ✅ Show success notification
       alert(`"${data.original_name || data.title}" added to watchlist!`);
-      
     } catch (err) {
       console.error("Add from card failed:", err);
-      
-      // ✅ Don't set clicked if there was an error
-      // The error alert is already shown in App.jsx addtowatchlist function
-      
+      // Don't set clicked if there was an error
     } finally {
       setLoading(false);
     }
